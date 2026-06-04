@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+
+    <AssemblyName>SwyftServoProgrammerV2</AssemblyName>
+    <RootNamespace>Swyft.ServoProgrammer</RootNamespace>
+
+    <Product>SWYFT Servo Programmer V2</Product>
+    <Company>SWYFT Robotics</Company>
+    <Authors>SWYFT Robotics</Authors>
+    <Version>2.0.0</Version>
+    <FileVersion>2.0.0.0</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Copyright>Copyright © SWYFT Robotics</Copyright>
+    <ApplicationIcon>Assets\swyft.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\swyft-logo.png" />
+    <Resource Include="Assets\swyft-wordmark.png" />
+    <Resource Include="Assets\wiring-diagram.png" />
+  </ItemGroup>
+
+  <!-- Bundle the CP210x USB-UART driver (incl. the per-architecture silabser.sys in subfolders) so
+       the user can install it manually. Explicit copy targets reliably preserve the folder tree for
+       both normal builds and published output (recursive globs via None/Content proved unreliable). -->
+  <Target Name="CopyDriverFilesToBuild" AfterTargets="Build">
+    <ItemGroup>
+      <DriverFiles Include="$(MSBuildProjectDirectory)\Drivers\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DriverFiles)"
+          DestinationFiles="@(DriverFiles->'$(OutDir)Drivers\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyDriverFilesToPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <DriverFilesPublish Include="$(MSBuildProjectDirectory)\Drivers\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DriverFilesPublish)"
+          DestinationFiles="@(DriverFilesPublish->'$(PublishDir)Drivers\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
