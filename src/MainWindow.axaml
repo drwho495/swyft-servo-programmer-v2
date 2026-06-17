@@ -1,0 +1,200 @@
+<Window x:Class="Swyft.ServoProgrammer.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SWYFT Servo Programmer V2"
+        Width="1180" Height="820"
+        MinWidth="980" MinHeight="680"
+        Background="#F2F7FB">
+
+    <Design.PreviewWith>
+        <Panel>
+            <TextBlock Text="Preview not available" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Panel>
+    </Design.PreviewWith>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header ============ -->
+        <Border Grid.Row="0" Background="#01A1FF">
+            <DockPanel Margin="22,14">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="White" CornerRadius="8" Padding="14,9" VerticalAlignment="Center">
+                        <Image Source="/Assets/swyft-wordmark.png" Height="26" Stretch="Uniform" />
+                    </Border>
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Servo Programmer V2" Foreground="White" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="SWYFT Robotics" Foreground="#CCEAFF" FontSize="11" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Border HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="12" Padding="12,5" Background="#33FFFFFF">
+                    <StackPanel Orientation="Horizontal">
+                        <Border x:Name="ConnDot" Width="10" Height="10" VerticalAlignment="Center" Background="#FF6B6B" CornerRadius="5" />
+                        <TextBlock Text="{Binding ConnectionStateText}" Foreground="White" FontWeight="SemiBold"
+                                   Margin="8,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Body ============ -->
+        <Grid Grid.Row="1" Margin="20,18,20,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="160" />
+            </Grid.RowDefinitions>
+
+            <!-- Connection bar -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock Text="COM PORT" FontSize="11" Foreground="#6A7B8B" />
+                        <ComboBox Width="150" Height="34"
+                                  ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}" />
+                    </StackPanel>
+
+                    <Button DockPanel.Dock="Left" Content="Refresh" 
+                            VerticalAlignment="Bottom" Margin="0,0,16,0" Command="{Binding RefreshPortsCommand}" />
+
+                    <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="BAUD" FontSize="11" Foreground="#6A7B8B" />
+                        <ComboBox Width="110" Height="34"
+                                  ItemsSource="{Binding AvailableBaudRates}" SelectedItem="{Binding BaudRate}" />
+                    </StackPanel>
+
+                    <Button DockPanel.Dock="Right" Content="{Binding ConnectButtonText}" 
+                            VerticalAlignment="Bottom" MinWidth="130" Command="{Binding ConnectCommand}" />
+                </DockPanel>
+            </Border>
+
+            <!-- Main area: parameters (left) + travel range / options (right) -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Parameters -->
+                <Border Grid.Column="0" Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,14,0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="SERVO PARAMETERS" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding Parameters}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="0,8">
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" Foreground="#1B2A3A" />
+                                                    <TextBlock Text="{Binding Range}" FontSize="11" Foreground="#6A7B8B" Margin="0,2,0,0" />
+                                                </StackPanel>
+                                                <TextBox Grid.Column="1" Width="84" Height="32" VerticalAlignment="Center"
+                                                         HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+                                                         Background="White" BorderBrush="#DCE6EE" BorderThickness="1.4" CornerRadius="6"
+                                                         FontSize="13" FontWeight="SemiBold" Foreground="#1B2A3A"
+                                                         Text="{Binding Value, Mode=TwoWay}" />
+                                                <TextBlock Grid.Column="2" Text="{Binding Unit}" VerticalAlignment="Center"
+                                                           MinWidth="30" Margin="8,0,0,0" Foreground="#6A7B8B" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+
+                <!-- Right column -->
+                <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+
+                        <!-- Travel range -->
+                        <Border Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="TRAVEL RANGE" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="Total Range" FontWeight="SemiBold" FontSize="13" Foreground="#1B2A3A" />
+                                        <TextBlock Text="0–320°" FontSize="11" Foreground="#6A7B8B" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1" Width="70" Height="32" VerticalAlignment="Center"
+                                             HorizontalContentAlignment="Center"
+                                             Background="White" BorderBrush="#DCE6EE" BorderThickness="1.4" CornerRadius="6"
+                                             FontSize="13" FontWeight="SemiBold" Foreground="#1B2A3A"
+                                             Text="{Binding TotalRangeDegrees, Mode=TwoWay}"
+                                             IsEnabled="{Binding IsRangeEditable}" />
+                                    <TextBlock Grid.Column="2" Text="°" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="#6A7B8B" />
+                                </Grid>
+                                <TextBlock Text="Split evenly between left and right sides." FontSize="11" Foreground="#6A7B8B" Margin="0,6,0,12" />
+
+                                <CheckBox Content="Continuous rotation" IsChecked="{Binding ContinuousRotation}" Margin="0,2,0,2" />
+                                <TextBlock Text="Sets left and right range to 255 for full-speed continuous rotation." FontSize="11" Foreground="#6A7B8B" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Options -->
+                        <Border Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="OPTIONS" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+
+                                <CheckBox Content="Reverse direction" IsChecked="{Binding DirectionReverse}" Margin="0,2,0,2" />
+                                <TextBlock Text="Swaps left and right. Off = default direction." FontSize="11" Foreground="#6A7B8B" Margin="0,0,0,10" TextWrapping="Wrap" />
+
+                                <CheckBox Content="Stall protection" IsChecked="{Binding StallProtection}" Margin="0,2,0,2" />
+                                <TextBlock Text="Shuts off the servo if stalled for over 10 seconds to prevent damage." FontSize="11" Foreground="#6A7B8B" Margin="0,0,0,10" TextWrapping="Wrap" />
+
+                                <CheckBox Content="Ramp mode" IsChecked="{Binding SoftStart}" Margin="0,2,0,2" />
+                                <TextBlock Text="Limits the initial current surge at startup." FontSize="11" Foreground="#6A7B8B" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Actions bar -->
+            <Border Grid.Row="2" Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,14,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Read Servo" MinWidth="140" Margin="0,0,10,0" Command="{Binding ReadCommand}" />
+                    <Button Content="Flash Servo" MinWidth="140" Margin="0,0,24,0" Command="{Binding WriteCommand}" />
+                    <Button Content="Set defaults" MinWidth="120" Margin="0,0,10,0" Command="{Binding SetDefaultsCommand}" />
+                    <Button x:Name="DriverButton" Content="USB driver" MinWidth="120" Margin="0,0,10,0" Command="{Binding OpenDriverFolderCommand}" />
+                    <Button Content="User guide" MinWidth="120" Command="{Binding ShowGuideCommand}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Activity log -->
+            <Border Grid.Row="3" Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,14,0,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="ACTIVITY LOG" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,6" />
+                    <ListBox x:Name="LogList" ItemsSource="{Binding LogEntries}" BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding TimeText}" Foreground="#6A7B8B" FontFamily="Consolas" Width="72" />
+                                    <TextBlock Text="{Binding Message}" Foreground="{Binding Color}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============ Status bar ============ -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#DCE6EE" BorderThickness="0,1,0,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="115200 8-N-2 • single-wire UART" Foreground="#6A7B8B" FontSize="11" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#1B2A3A" FontSize="12" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

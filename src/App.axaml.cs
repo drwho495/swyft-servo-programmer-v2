@@ -1,8 +1,10 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 
 namespace Swyft.ServoProgrammer;
 
@@ -16,17 +18,24 @@ public partial class App : Application
     {
         // Keep the app alive when something unexpected happens (e.g. a flaky COM port) instead of
         // crashing to the desktop. Errors are logged and, for UI-thread failures, surfaced to the user.
-        DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
-    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    public override void Initialize()
     {
-        // Log and keep the app running. We deliberately do NOT pop a modal dialog here: an error that
-        // recurs (e.g. a flaky port) would otherwise stack up dozens of message boxes.
-        WriteLog("UI", e.Exception);
-        e.Handled = true;
+        AvaloniaXamlLoader.Load(this);
+        Styles.Add(new Avalonia.Themes.Fluent.FluentTheme());
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+
+        base.OnFrameworkInitializationCompleted();
     }
 
     private void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)

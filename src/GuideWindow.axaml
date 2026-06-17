@@ -1,0 +1,162 @@
+<Window x:Class="Swyft.ServoProgrammer.GuideWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SWYFT Servo Programmer V2 - User Guide"
+        Width="720" Height="760"
+        MinWidth="520" MinHeight="500"
+        Background="#F2F7FB">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#01A1FF">
+            <StackPanel Orientation="Horizontal" Margin="20,14" VerticalAlignment="Center">
+                <Border Background="White" CornerRadius="8" Padding="9,3" VerticalAlignment="Center">
+                    <TextBlock Text="SWYFT" FontWeight="Bold" FontSize="18" Foreground="#01A1FF" />
+                </Border>
+                <TextBlock Text="User Guide" Foreground="White" FontSize="18" FontWeight="SemiBold"
+                           Margin="14,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24,18">
+            <StackPanel MaxWidth="640" HorizontalAlignment="Left">
+
+                <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                    This guide explains the settings and functionality of the SWYFT Servo Programmer software.
+                </TextBlock>
+
+                <!-- Getting Started -->
+                <Border Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,8,0,14">
+                    <StackPanel>
+                        <TextBlock Text="GETTING STARTED" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="1. Connect servo: " />
+                            <Run Text="Connect the servo to the programmer using a USB-to-UART adapter (CP210x, CH340, FT232, etc.). Match the gray wire (servo side) to the white wire (programmer side), as shown below." />
+                        </TextBlock>
+                        <Border BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="8" Background="White" Padding="8" Margin="0,2,0,10" HorizontalAlignment="Left">
+                            <StackPanel>
+                                <Image Source="/Assets/wiring-diagram.png" Stretch="Uniform" MaxWidth="420" />
+                                <TextBlock Text="USB-to-UART adapter wired to a SWYFT servo." FontSize="11" Foreground="#6A7B8B" HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Border>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="2. Install drivers (Windows): " />
+                            <Run Text="Click &#x22;USB driver&#x22; in the action bar to open the folder with the bundled Silicon Labs CP210x driver. Right-click &#x22;silabser.inf&#x22; and choose Install. On Linux, the CP210x driver is built into the kernel." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="3. Select COM port: " />
+                            <Run Text="Choose the identified serial port at the top of the window (use Refresh if needed) and click Connect." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="4. Read servo: " />
+                            <Run Text="Click &#x22;Read Servo&#x22; to retrieve the current settings. If the values don't populate, double-check the previous steps." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="5. Modify settings: " />
+                            <Run Text="Adjust the servo settings as needed (see explanations below)." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,6">
+                            <Run FontWeight="SemiBold" Text="6. Flash servo: " />
+                            <Run Text="Click &#x22;Flash Servo&#x22; to save the new settings. A successful flash updates the activity log with the current time." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0">
+                            <Run FontWeight="SemiBold" Text="7. Unplug: " />
+                            <Run Text="Disconnect the servo from the programmer." />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Setting Explanations -->
+                <Border Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="SETTING EXPLANATIONS" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+
+                        <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#1B2A3A" Text="PID coefficients" />
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">These parameters fine-tune the servo's response characteristics.</TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="P (Proportional): " />
+                            <Run Text="How strongly the servo reacts to the error between its current and target position." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="I (Integral): " />
+                            <Run Text="Addresses accumulated error over time, eliminating steady-state errors." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="D (Derivative): " />
+                            <Run Text="Dampens the servo's response, reducing overshoot and oscillation." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Min Signal: " />
+                            <Run Text="The PWM signal value corresponding to the servo's leftmost position." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Max Signal: " />
+                            <Run Text="The PWM signal value corresponding to the servo's rightmost position." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Middle Signal: " />
+                            <Run Text="The PWM signal value for the servo's center position. It's generally recommended to leave this at 1500." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Dead Zone: " />
+                            <Run Text="How close the servo needs to be to its target before it stops actively trying to reach it." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Power: " />
+                            <Run Text="Sets the maximum power output to the servo motor. It's expressed as a percentage (e.g., 90% = 450)." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Stall Protection: " />
+                            <Run Text="A safety feature that automatically shuts off the servo if it's stalled for more than 10 seconds." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Ramp Mode: " />
+                            <Run Text="Limits the initial current surge when the servo starts up." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Total Range: " />
+                            <Run Text="The total mechanical travel of the servo (0-320 deg)." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0">
+                            <Run FontWeight="SemiBold" Text="Direction: " />
+                            <Run Text="Allows you to reverse the servo's direction, swapping left and right." />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Continuous Rotation -->
+                <Border Background="White" BorderBrush="#DCE6EE" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="CONTINUOUS ROTATION MODE" FontSize="14" FontWeight="SemiBold" Foreground="#0182CC" Margin="0,0,0,10" />
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">Enable the &#x22;Continuous rotation&#x22; switch to configure the servo for continuous rotation. This automatically sets both Left and Right range to 255.</TextBlock>
+                        <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="#1B2A3A" Margin="0,4,0,4" Text="Limitations and features" />
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Full speed only: " />
+                            <Run Text="Continuous rotation supports full speed in either direction only." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0,0,0,8">
+                            <Run FontWeight="SemiBold" Text="Home position: " />
+                            <Run Text="Sending a position signal of 1500 (or 0.5 in code) returns the servo to its neutral (home) position." />
+                        </TextBlock>
+                        <TextBlock FontSize="13" Foreground="#1B2A3A" TextWrapping="Wrap" Margin="0">
+                            <Run FontWeight="SemiBold" Text="Stopping: " />
+                            <Run Text="To stop the servo in continuous rotation mode, use the disable-PWM command in your code." />
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#DCE6EE" BorderThickness="0,1,0,0">
+            <Button Content="Close" Margin="20,12" MinWidth="110" HorizontalAlignment="Right" IsCancel="True" />
+        </Border>
+    </Grid>
+</Window>

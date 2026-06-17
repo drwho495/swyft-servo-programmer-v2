@@ -1,5 +1,4 @@
-using System.Windows.Media;
-using MediaColor = System.Windows.Media.Color;
+using Avalonia.Media;
 
 namespace Swyft.ServoProgrammer.ViewModels;
 
@@ -27,11 +26,11 @@ public sealed class LogEntry
 
     public string TimeText => Timestamp.ToString("HH:mm:ss");
 
-    public Brush Color => Level switch
+    public SolidColorBrush Color => Level switch
     {
-        LogLevel.Success => new SolidColorBrush(MediaColor.FromRgb(0x1B, 0x9E, 0x4B)),
-        LogLevel.Warning => new SolidColorBrush(MediaColor.FromRgb(0xC8, 0x7A, 0x00)),
-        LogLevel.Error => new SolidColorBrush(MediaColor.FromRgb(0xD0, 0x2B, 0x2B)),
-        _ => new SolidColorBrush(MediaColor.FromRgb(0x33, 0x44, 0x55))
+        LogLevel.Success => SolidColorBrush.Parse("#1B9E4B"),
+        LogLevel.Warning => SolidColorBrush.Parse("#C87A00"),
+        LogLevel.Error => SolidColorBrush.Parse("#D02B2B"),
+        _ => SolidColorBrush.Parse("#334455")
     };
 }

@@ -1,14 +1,10 @@
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Management;
-using System.Text.RegularExpressions;
+using Swyft.ServoProgrammer.Abstractions;
 using Swyft.ServoProgrammer.Models;
 using Swyft.ServoProgrammer.Protocol;
 
 namespace Swyft.ServoProgrammer.Services;
-
-/// <summary>A COM port together with its Windows friendly name (e.g. "Silicon Labs CP210x ... (COM3)").</summary>
-public sealed record SerialPortInfo(string Name, string Description);
 
 /// <summary>
 /// Thin wrapper around <see cref="SerialPort"/> implementing the request/response
@@ -16,6 +12,7 @@ public sealed record SerialPortInfo(string Name, string Description);
 /// </summary>
 public sealed class ServoConnection : IDisposable
 {
+    private readonly ISerialPortProvider _provider = SerialPortProviderFactory.GetProvider();
     private readonly object _gate = new();
     private SerialPort? _port;
 
@@ -32,42 +29,13 @@ public sealed class ServoConnection : IDisposable
     public static string[] GetPortNames() => SerialPort.GetPortNames();
 
     /// <summary>
-    /// Returns the available COM ports with their Windows friendly names, queried via WMI. Unlike
-    /// <see cref="GetPortNames"/>, this lets us recognise USB-to-UART adapters by name without having
-    /// to open each port (opening/closing arbitrary ports is unreliable with System.IO.Ports).
+    /// Returns the available serial ports with their device descriptions. Uses the platform-specific
+    /// provider to get detailed information (WMI on Windows, sysfs on Linux).
     /// </summary>
     public static IReadOnlyList<SerialPortInfo> DescribePorts()
     {
-        var available = new HashSet<string>(SerialPort.GetPortNames(), StringComparer.OrdinalIgnoreCase);
-        var result = new List<SerialPortInfo>();
-
-        try
-        {
-            using var searcher = new ManagementObjectSearcher(
-                "SELECT Name FROM Win32_PnPEntity WHERE Name LIKE '%(COM%)'");
-            foreach (var device in searcher.Get())
-            {
-                var name = device["Name"]?.ToString();
-                if (string.IsNullOrWhiteSpace(name)) continue;
-
-                var match = Regex.Match(name, @"\((COM\d+)\)");
-                if (!match.Success) continue;
-
-                var port = match.Groups[1].Value;
-                available.Remove(port);
-                result.Add(new SerialPortInfo(port, name));
-            }
-        }
-        catch
-        {
-            // WMI can be unavailable or slow on some systems; fall back to bare port names below.
-        }
-
-        // Include any ports WMI didn't describe so nothing is hidden from the user.
-        foreach (var port in available)
-            result.Add(new SerialPortInfo(port, port));
-
-        return result;
+        var provider = SerialPortProviderFactory.GetProvider();
+        return provider.DescribePorts();
     }
 
     public void Open(string portName, SerialSettings settings)

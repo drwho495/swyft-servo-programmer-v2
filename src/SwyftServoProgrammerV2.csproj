@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
+    <!-- Define WINDOWS symbol only when building on Windows for conditional compilation -->
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(DefineConstants);WINDOWS</DefineConstants>
 
     <AssemblyName>SwyftServoProgrammerV2</AssemblyName>
     <RootNamespace>Swyft.ServoProgrammer</RootNamespace>
@@ -18,23 +19,42 @@
     <FileVersion>2.0.0.0</FileVersion>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <Copyright>Copyright © SWYFT Robotics</Copyright>
-    <ApplicationIcon>Assets\swyft.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <!-- System.IO.Ports for serial communication -->
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <!-- Windows-only: System.Management for WMI-based port discovery -->
+    <PackageReference Condition="$([MSBuild]::IsOSPlatform('Windows'))" Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\swyft-logo.png" />
-    <Resource Include="Assets\swyft-wordmark.png" />
-    <Resource Include="Assets\wiring-diagram.png" />
+    <AvaloniaResource Include="Assets\swyft-logo.png" />
+    <AvaloniaResource Include="Assets\swyft-wordmark.png" />
+    <AvaloniaResource Include="Assets\wiring-diagram.png" />
   </ItemGroup>
 
-  <!-- Bundle the CP210x USB-UART driver (incl. the per-architecture silabser.sys in subfolders) so
-       the user can install it manually. Explicit copy targets reliably preserve the folder tree for
-       both normal builds and published output (recursive globs via None/Content proved unreliable). -->
+  <!-- Include Brand.axaml as a resource dictionary (not a window, so no x:Class) -->
+  <ItemGroup>
+    <AvaloniaResource Include="Themes\Brand.axaml" />
+  </ItemGroup>
+
+  <!-- Exclude Windows-specific files on Linux -->
+  <ItemGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <Compile Remove="Services\WindowsSerialPortProvider.cs" />
+  </ItemGroup>
+
+  <!-- Exclude Linux-specific files on Windows -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <Compile Remove="Services\LinuxSerialPortProvider.cs" />
+  </ItemGroup>
+
+  <!-- Bundle the CP210x USB-UART driver for Windows users. -->
   <Target Name="CopyDriverFilesToBuild" AfterTargets="Build">
     <ItemGroup>
       <DriverFiles Include="$(MSBuildProjectDirectory)\Drivers\**\*.*" />

@@ -2,7 +2,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using Swyft.ServoProgrammer.Infrastructure;
 using Swyft.ServoProgrammer.Models;
 using Swyft.ServoProgrammer.Protocol;
@@ -72,7 +73,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         set
         {
             if (SetProperty(ref _selectedPort, value))
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                InvalidateCommands();
         }
     }
 
@@ -91,7 +92,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             {
                 OnPropertyChanged(nameof(ConnectButtonText));
                 OnPropertyChanged(nameof(ConnectionStateText));
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                InvalidateCommands();
             }
         }
     }
@@ -160,8 +161,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (e.PropertyName is nameof(ParameterViewModel.Value) or nameof(ParameterViewModel.IsValid))
         {
             OnPropertyChanged(nameof(AllParametersValid));
-            System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            InvalidateCommands();
         }
+    }
+
+    private static void InvalidateCommands()
+    {
+        // In Avalonia, we use CommunityToolkit.Mvvm's command system which doesn't use CommandManager.
+        // Commands with CanExecute will re-evaluate when needed.
     }
 
     private void RefreshPorts()
@@ -432,11 +439,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 $"Ramp={(p.SoftStart ? "On" : "Off")}.");
         }
 
-        var dispatcher = Application.Current?.Dispatcher;
-        if (dispatcher is null || dispatcher.CheckAccess())
+        // Use Avalonia's Dispatcher to ensure UI thread access
+        if (Dispatcher.UIThread.CheckAccess())
             Apply();
         else
-            dispatcher.Invoke(Apply);
+            Dispatcher.UIThread.Invoke(Apply);
     }
 
     /// <summary>Recommended factory defaults for a standard (non-continuous) SWYFT servo.</summary>
@@ -464,12 +471,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private static void ShowGuide()
     {
-        var window = new Swyft.ServoProgrammer.GuideWindow { Owner = Application.Current?.MainWindow };
-        window.ShowDialog();
+        var desktop = Avalonia.Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime;
+        var mainWindow = desktop?.MainWindow;
+        var window = new Swyft.ServoProgrammer.GuideWindow();
+        window.ShowDialog(mainWindow!);
     }
 
     private void OpenDriverFolder()
     {
+        if (!DriverInstaller.IsDriverInstallationRequired)
+        {
+            Log(LogLevel.Info, "USB drivers are not required on Linux - the CP210x driver is built into the kernel.");
+            return;
+        }
+
         try
         {
             var folder = DriverInstaller.DriverFolder;
@@ -500,11 +515,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             StatusLevel = level;
         }
 
-        var dispatcher = Application.Current?.Dispatcher;
-        if (dispatcher is null || dispatcher.CheckAccess())
+        // Use Avalonia's Dispatcher to ensure UI thread access
+        if (Dispatcher.UIThread.CheckAccess())
             Append();
         else
-            dispatcher.Invoke(Append);
+            Dispatcher.UIThread.Invoke(Append);
     }
 
     private static string NaturalPortKey(string port)
